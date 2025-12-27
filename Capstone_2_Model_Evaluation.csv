@@ -1,0 +1,4 @@
+Model,Split,Accuracy,Macro Precision,Macro Recall,Macro F1
+TF-IDF + Logistic Regression,Validation,0.6675,0.6376,0.6615,0.6455
+TF-IDF + Logistic Regression,Test,0.5947,0.5858,0.5996,0.5911
+Transformer (Fine-tuned),Test,0.7123,0.704,0.7303,0.714
