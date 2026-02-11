@@ -1,0 +1,9 @@
+label,auroc
+Effusion,0.824642395
+Cardiomegaly,0.801180675
+Pneumothorax,0.79700397
+Atelectasis,0.77557818
+Mass,0.735282506
+Infiltration,0.71479663
+Nodule,0.657456062
+Pneumonia,0.61873201

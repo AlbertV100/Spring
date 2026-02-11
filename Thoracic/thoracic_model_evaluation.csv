@@ -1,0 +1,24 @@
+section,name,value,notes
+model,backbone,DenseNet121,"ImageNet-pretrained, include_top=False"
+model,input_shape,224x224x3,RGB frontal chest X-ray
+model,num_labels,15,Multi-label (15 thoracic findings incl. 'No Finding')
+model,head_architecture,"GAP -> Dense(256, ReLU) -> Dropout(0.5) -> Dense(15, sigmoid)",GlobalAveragePooling2D on DenseNet features
+model,preprocessing,keras.applications.densenet.preprocess_input,ImageNet-aligned scaling (not raw /255)
+model,final_model_variant,"DenseNet121 frozen vs fine-tuned, best selected by val_auc",Two variants trained; best model chosen on validation AUC
+data,dataset,NIH Chest X-ray style (frontal CXRs),"Multi-label, noisy report-derived labels"
+data,splitting_strategy,patient-level split,Each patient appears in exactly one of train/val/test
+data,split_ratios,≈70% train / 15% val / 15% test,"By unique patient_id, not by image"
+data,label_encoding,multi-hot across 15 labels,Parsed from pipe-separated finding_labels
+data,image_path_resolution,filename -> full path under nih_images_bucket,Rows with missing files dropped and logged
+training,loss_function,binary_crossentropy,Per-label BCE for multi-label setup
+training,optimizer_model_A,Adam (lr=1e-4),DenseNet frozen (feature extractor)
+training,optimizer_model_B,Adam (lr=1e-5),DenseNet fine-tuned (backbone trainable)
+training,batch_size,32,Used in ImageDataGenerator.flow_from_dataframe
+training,image_size,224x224,Images resized before feeding to DenseNet
+training,metrics,"BinaryAccuracy, AUC",Keras metrics tracked on validation and test sets
+training,scheduler,ReduceLROnPlateau on val_auc,"factor=0.5, patience=2, min_lr=1e-7"
+training,augmentation,small rotations/shifts/zoom + horizontal flip,"rotation_range=5, width/height_shift=0.05, zoom_range=0.05, horizontal_flip=True"
+evaluation,selection_criterion,best validation AUC,Model with highest val_auc chosen as final
+evaluation,test_macro_auroc,0.7205,Macro-average AUROC across labels (excluding degenerate labels)
+evaluation,test_metric_notes,per-label AUROC also computed,Higher for common labels; weaker for rare labels like Hernia
+evaluation,intended_use,decision-support / triage,Not for autonomous diagnosis; human-in-the-loop required
